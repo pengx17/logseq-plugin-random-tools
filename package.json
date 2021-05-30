@@ -1,5 +1,5 @@
 {
-  "name": "logseq-plugin-template-react",
+  "name": "logseq-plugin-random-tools",
   "version": "0.0.1",
   "main": "dist/index.html",
   "scripts": {
@@ -9,9 +9,11 @@
   "license": "MIT",
   "dependencies": {
     "@logseq/libs": "^0.0.1-alpha.10",
+    "@types/uuid": "^8.3.0",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
-    "react-use": "^17.2.4"
+    "react-use": "^17.2.4",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/react": "^17.0.0",
@@ -23,7 +25,7 @@
     "windicss": "^3.0.9"
   },
   "logseq": {
-    "id": "_yourid",
+    "id": "_xp_logseq_plugin_random_tools",
     "icon": "./logo.svg"
   }
 }

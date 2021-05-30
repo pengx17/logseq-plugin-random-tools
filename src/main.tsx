@@ -24,37 +24,15 @@ function main() {
     document.getElementById("app")
   );
 
-  const key = logseq.baseInfo.id;
-
   logseq.setMainUIInlineStyle({
     zIndex: 11,
   });
 
-  const openIconName = "template-plugin-open";
-
   logseq.provideStyle(css`
-    div[data-injected-ui=${openIconName}-${key}] {
-      display: inline-flex;
-      align-items: center;
-      opacity: 0.55;
-      font-weight: 500;
-      padding: 0 5px;
-      position: relative;
-    }
-
-    div[data-injected-ui=${openIconName}-${key}]:hover {
-      opacity: 0.9;
+    img[data-fullscreen-visited] {
+      cursor: pointer;
     }
   `);
-
-  logseq.provideUI({
-    key: openIconName,
-    path: "#search",
-    template: `
-      <a data-on-click="show"
-         style="opacity: .6; display: inline-flex;">⚙️</a>
-    `,
-  });
 }
 
 logseq.ready(createModel()).then(main).catch(console.error);
