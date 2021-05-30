@@ -46,7 +46,9 @@ const useSetupImageFullscreen = (onClick: (imgsrc: string) => void) => {
           img.removeAttribute(attrName);
           listeners.delete(id)
         }
-      })
+      });
+
+      observer.disconnect();
     }
   }, []);
 }
