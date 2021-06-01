@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import { useMountedState } from "react-use";
 
-export const useAppVisible = () => {
-  const [visible, setVisible] = useState(logseq.isMainUIVisible);
+export const useAppOnVisibleChange = (fn: (visible: boolean) => void) => {
   const isMounted = useMountedState();
   React.useEffect(() => {
     const eventName = "ui:visible:changed";
     const handler = async ({ visible }: any) => {
       if (isMounted()) {
-        setVisible(visible);
+        fn(visible);
       }
     };
     logseq.on(eventName, handler);
@@ -16,6 +15,11 @@ export const useAppVisible = () => {
       logseq.off(eventName, handler);
     };
   }, []);
+};
+
+export const useAppVisible = () => {
+  const [visible, setVisible] = useState(logseq.isMainUIVisible);
+  useAppOnVisibleChange(setVisible);
   return visible;
 };
 

@@ -29,7 +29,7 @@ function main() {
   });
 
   logseq.provideStyle(css`
-    img[data-fullscreen-visited] {
+    .image-resize img {
       cursor: pointer;
     }
   `);
