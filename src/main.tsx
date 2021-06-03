@@ -32,7 +32,29 @@ function main() {
     .image-resize img {
       cursor: pointer;
     }
+
+    span#random-tools-block-path {
+      position: absolute;
+      top: calc(100% + 0.25em);
+      left: 0.25em;
+      padding: 0.25em 0.5em;
+      font-size: 12px;
+      color: var(--ct-page-font-color);
+      border-radius: 2px;
+      box-shadow: 0 0 1px;
+      display: none;
+    }
+
+    span#random-tools-block-path * {
+      font-size: 12px;
+    }
   `);
+
+  logseq.provideUI({
+    key: "block-path",
+    path: "#head.cp__header",
+    template: `<span id="random-tools-block-path" class="color-level"></span>`,
+  });
 }
 
 logseq.ready(createModel()).then(main).catch(console.error);

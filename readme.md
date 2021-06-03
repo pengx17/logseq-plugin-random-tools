@@ -1,5 +1,8 @@
 # Logseq Plugin Random Tools
 
-Some random tools. 
+Some random tools for fun.
 
-## Click image to show in fullscreen
+### Click image to show in full screen
+![](./fullscreen.gif)
+### Show current block path
+![](./block-path.gif)

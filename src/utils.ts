@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useMountedState } from "react-use";
+import { useMountedState, useDebounce } from "react-use";
 
 export const useAppOnVisibleChange = (fn: (visible: boolean) => void) => {
   const isMounted = useMountedState();
@@ -35,3 +35,15 @@ export const useSidebarVisible = () => {
   }, []);
   return visible;
 };
+
+export function useDebounceValue<T>(v: T, timeout: number = 50) {
+  const [state, setState] = React.useState(v);
+  useDebounce(
+    () => {
+      setState(v);
+    },
+    timeout,
+    [v]
+  );
+  return state;
+}

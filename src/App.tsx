@@ -1,18 +1,14 @@
 import React from "react";
 import { useKey } from "react-use";
 import { FullscreenImage } from "./FullscreenImage";
+import { BlockPathRenderer } from "./PathRender";
 
 function App() {
-  useKey(
-    "Escape",
-    () => {
-      logseq.hideMainUI();
-    },
-    { options: true }
-  );
+  useKey("Escape", () => logseq.hideMainUI(), { options: true });
   return (
     <>
       <FullscreenImage />
+      <BlockPathRenderer />
     </>
   );
 }
