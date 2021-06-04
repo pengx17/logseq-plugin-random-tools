@@ -59,7 +59,7 @@ function main() {
       display: inline-block;
       white-space: nowrap;
       font-weight: 600;
-      max-width: 200px;
+      max-width: 400px;
       text-overflow: ellipsis;
       overflow: hidden;
     }

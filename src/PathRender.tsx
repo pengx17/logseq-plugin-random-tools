@@ -26,7 +26,7 @@ function getParentBlocks(
     for (let b of pageTree) {
       const newParents = [...parents, b];
       const candidates = getParentBlocks(
-        b.children.filter(isBlockEntity),
+        (b.children ?? []).filter(isBlockEntity),
         currentBlock,
         newParents
       );
@@ -44,7 +44,7 @@ const getFragmentText = (fragment: any) => {
 
 const getBlockLabel = (b: PageEntity | BlockEntity) => {
   if (isBlockEntity(b)) {
-    return b.title.map(getFragmentText).join("");
+    return b.title?.map(getFragmentText).join("") ?? '<empty>';
   }
   return `[[${b.originalName}]]`;
 };
@@ -127,15 +127,17 @@ const useSyncBlockPath = (blocks?: ActiveBlocks) => {
         anchor.innerHTML = "";
         anchor.style.display = "none";
       }
-      return () => {
+    }
+    return () => {
+      if (anchor) {
         anchor.innerHTML = "";
         anchor.style.display = "none";
-      };
-    }
-  });
+      }
+    };
+  }, []);
 };
 
-export function BlockPathRenderer() {
+export function BlockPathRenderer(_props: any) {
   const blocks = useActiveBlocks();
   useSyncBlockPath(blocks);
   return null;
