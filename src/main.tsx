@@ -43,20 +43,18 @@ function main() {
       color: var(--ct-page-font-color);
       border-radius: 2px;
       box-shadow: 0 0 1px;
-      display: none;
+      visibility: hidden;
+      display: flex;
+      align-items: center;
     }
 
     span#random-tools-block-path * {
       font-size: 12px;
     }
 
-    span#random-tools-block-path > * {
-      vertical-align: middle;
-    }
-
     span#random-tools-block-path a.block-path-breadcrumb-fragment {
       color: var(--ls-link-ref-text-color);
-      display: inline-block;
+      display: inline-flex;
       white-space: nowrap;
       font-weight: 600;
       max-width: 400px;
@@ -65,7 +63,8 @@ function main() {
     }
 
     span#random-tools-block-path .block-path-breadcrumb-fragment-separator {
-      font-weight: 600; 
+      font-weight: 600;
+      margin: 0 0.5em;
     }
   `);
 

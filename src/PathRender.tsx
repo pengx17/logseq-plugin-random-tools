@@ -61,6 +61,7 @@ export function useActiveBlocks() {
       const block = await logseq.Editor.getCurrentBlock();
       if (block) {
         const page = await logseq.Editor.getBlock<true>(block.page.id);
+        console.log(block, page)
         if (page) {
           const pageBlocks =
             (await logseq.Editor.getPageBlocksTree(page.name)) ?? [];
@@ -122,19 +123,19 @@ const useSyncBlockPath = (blocks?: ActiveBlocks) => {
           .join(
             "<span class='block-path-breadcrumb-fragment-separator'> / </span>"
           );
-        anchor.style.display = "inline";
+        anchor.style.visibility = "visible";
       } else {
         anchor.innerHTML = "";
-        anchor.style.display = "none";
+        anchor.style.visibility = "hidden";
       }
     }
     return () => {
       if (anchor) {
         anchor.innerHTML = "";
-        anchor.style.display = "none";
+        anchor.style.visibility = "hidden";
       }
     };
-  }, []);
+  }, [blocks]);
 };
 
 export function BlockPathRenderer(_props: any) {
