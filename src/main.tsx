@@ -4,7 +4,7 @@ import "virtual:windi.css";
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
-import { BLOCK_PATH_ANCHOR_ID } from "./PathRender";
+import { BLOCK_PATH_ANCHOR_ID } from "./utils";
 
 // @ts-expect-error
 const css = (t, ...args) => String.raw(t, ...args);

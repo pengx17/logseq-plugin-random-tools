@@ -1,10 +1,12 @@
 import {
   BlockEntity,
   BlockUUIDTuple,
+  // @ts-expect-error
   PageEntity,
 } from "@logseq/libs/dist/LSPlugin";
 import * as React from "react";
 import { useMountedState } from "react-use";
+import { BLOCK_PATH_ANCHOR_ID } from "./utils";
 
 function isBlockEntity(
   maybeBlockEntity: BlockEntity | BlockUUIDTuple | PageEntity
@@ -12,8 +14,6 @@ function isBlockEntity(
   // PageEntity does not have "page" property
   return "page" in maybeBlockEntity;
 }
-
-export const BLOCK_PATH_ANCHOR_ID = "random-tools-block-path";
 
 function getParentBlocks(
   pageTree: BlockEntity[],
@@ -44,7 +44,7 @@ const getFragmentText = (fragment: any) => {
 
 const getBlockLabel = (b: PageEntity | BlockEntity) => {
   if (isBlockEntity(b)) {
-    return b.title?.map(getFragmentText).join("") ?? '<empty>';
+    return b.title?.map(getFragmentText).join("").trim() || '<empty>';
   }
   return `[[${b.originalName}]]`;
 };
@@ -60,8 +60,7 @@ export function useActiveBlocks() {
     const focusListener = async () => {
       const block = await logseq.Editor.getCurrentBlock();
       if (block) {
-        const page = await logseq.Editor.getBlock<true>(block.page.id);
-        console.log(block, page)
+        const page = await logseq.Editor.getBlock(block.page.id);
         if (page) {
           const pageBlocks =
             (await logseq.Editor.getPageBlocksTree(page.name)) ?? [];

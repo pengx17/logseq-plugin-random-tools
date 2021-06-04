@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useMountedState, useDebounce } from "react-use";
 
+export const BLOCK_PATH_ANCHOR_ID = "random-tools-block-path";
+
 export const useAppOnVisibleChange = (fn: (visible: boolean) => void) => {
   const isMounted = useMountedState();
   React.useEffect(() => {
