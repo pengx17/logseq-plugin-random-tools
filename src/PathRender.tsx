@@ -1,11 +1,16 @@
-import { BlockEntity, BlockUUIDTuple } from "@logseq/libs/dist/LSPlugin";
+import {
+  BlockEntity,
+  BlockUUIDTuple,
+  PageEntity,
+} from "@logseq/libs/dist/LSPlugin";
 import * as React from "react";
 import { useMountedState } from "react-use";
 
 function isBlockEntity(
-  maybeBlockEntity: BlockEntity | BlockUUIDTuple
+  maybeBlockEntity: BlockEntity | BlockUUIDTuple | PageEntity
 ): maybeBlockEntity is BlockEntity {
-  return "id" in maybeBlockEntity;
+  // PageEntity does not have "page" property
+  return "page" in maybeBlockEntity;
 }
 
 export const BLOCK_PATH_ANCHOR_ID = "random-tools-block-path";
@@ -37,27 +42,35 @@ const getFragmentText = (fragment: any) => {
   return typeof fragment[1] === "string" ? fragment[1] : fragment[1]?.fullText;
 };
 
-const getTitleText = (b: BlockEntity) => {
-  return b.title.map(getFragmentText).join("");
+const getBlockLabel = (b: PageEntity | BlockEntity) => {
+  if (isBlockEntity(b)) {
+    return b.title.map(getFragmentText).join("");
+  }
+  return `[[${b.originalName}]]`;
 };
+
+type ActiveBlocks = readonly [PageEntity, ...BlockEntity[]];
 
 export function useActiveBlocks() {
   const [blocks, setBlocks] =
-    React.useState<BlockEntity[] | undefined>(undefined);
+    React.useState<ActiveBlocks | undefined>(undefined);
   const isMounted = useMountedState();
   const currentBlocksRef = React.useRef(blocks);
   React.useEffect(() => {
     const focusListener = async () => {
       const block = await logseq.Editor.getCurrentBlock();
       if (block) {
-        const pageBlocks =
-          (await logseq.Editor.getCurrentPageBlocksTree()) ?? [];
-        if (isMounted()) {
-          const parentBlocks = getParentBlocks(pageBlocks, block);
-          if (parentBlocks) {
-            const _blocks = [...parentBlocks, block];
-            setBlocks(_blocks);
-            currentBlocksRef.current = _blocks;
+        const page = await logseq.Editor.getBlock<true>(block.page.id);
+        if (page) {
+          const pageBlocks =
+            (await logseq.Editor.getPageBlocksTree(page.name)) ?? [];
+          if (isMounted()) {
+            const parentBlocks = getParentBlocks(pageBlocks, block);
+            if (parentBlocks) {
+              const _blocks = [page!, ...parentBlocks, block] as const;
+              setBlocks(_blocks);
+              currentBlocksRef.current = _blocks;
+            }
           }
         }
       }
@@ -80,15 +93,35 @@ export function useActiveBlocks() {
   return blocks;
 }
 
-const useSyncBlockPath = (blocks?: BlockEntity[]) => {
+function getActiveBlockBreadcrumbs(blocks?: ActiveBlocks) {
+  if (blocks) {
+    let result: { label: string; href: string }[] = [];
+    const [page, ...parentBlocks] = blocks;
+    result.push({ label: getBlockLabel(page), href: `#/page/${page.name}` });
+    parentBlocks.forEach((block) => {
+      result.push({
+        label: getBlockLabel(block),
+        href: `#/page/${block.uuid}`,
+      });
+    });
+    return result;
+  }
+  return;
+}
+
+const useSyncBlockPath = (blocks?: ActiveBlocks) => {
   React.useEffect(() => {
     const anchor = top.document.getElementById(BLOCK_PATH_ANCHOR_ID);
     if (anchor) {
-      const path = blocks?.map(getTitleText);
-      if (path) {
-        anchor.innerHTML = path
-          .map((p: string) => `<strong>${p}</strong>`)
-          .join(" ➤ ");
+      const breadcrumbs = getActiveBlockBreadcrumbs(blocks);
+      if (breadcrumbs) {
+        anchor.innerHTML = breadcrumbs
+          .map((breadcrumb) => {
+            return `<a href="${breadcrumb.href}" class="block-path-breadcrumb-fragment">${breadcrumb.label}</a>`;
+          })
+          .join(
+            "<span class='block-path-breadcrumb-fragment-separator'> / </span>"
+          );
         anchor.style.display = "inline";
       } else {
         anchor.innerHTML = "";
@@ -99,7 +132,7 @@ const useSyncBlockPath = (blocks?: BlockEntity[]) => {
         anchor.style.display = "none";
       };
     }
-  }, [blocks]);
+  });
 };
 
 export function BlockPathRenderer() {

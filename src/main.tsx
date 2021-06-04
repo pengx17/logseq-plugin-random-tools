@@ -49,6 +49,24 @@ function main() {
     span#random-tools-block-path * {
       font-size: 12px;
     }
+
+    span#random-tools-block-path > * {
+      vertical-align: middle;
+    }
+
+    span#random-tools-block-path a.block-path-breadcrumb-fragment {
+      color: var(--ls-link-ref-text-color);
+      display: inline-block;
+      white-space: nowrap;
+      font-weight: 600;
+      max-width: 200px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    span#random-tools-block-path .block-path-breadcrumb-fragment-separator {
+      font-weight: 600; 
+    }
   `);
 
   logseq.provideUI({
