@@ -4,6 +4,7 @@ import "virtual:windi.css";
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
+import { BLOCK_PATH_ANCHOR_ID } from "./PathRender";
 
 // @ts-expect-error
 const css = (t, ...args) => String.raw(t, ...args);
@@ -33,7 +34,7 @@ function main() {
       cursor: pointer;
     }
 
-    span#random-tools-block-path {
+    span#${BLOCK_PATH_ANCHOR_ID} {
       position: absolute;
       top: calc(100% + 0.25em);
       left: 0.25em;
@@ -53,7 +54,7 @@ function main() {
   logseq.provideUI({
     key: "block-path",
     path: "#head.cp__header",
-    template: `<span id="random-tools-block-path" class="color-level"></span>`,
+    template: `<span id="${BLOCK_PATH_ANCHOR_ID}" class="color-level"></span>`,
   });
 }
 

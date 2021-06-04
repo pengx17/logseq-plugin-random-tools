@@ -1,6 +1,14 @@
-import { BlockEntity } from "@logseq/libs/dist/LSPlugin";
+import { BlockEntity, BlockUUIDTuple } from "@logseq/libs/dist/LSPlugin";
 import * as React from "react";
-import { useDebounceValue } from "./utils";
+import { useMountedState } from "react-use";
+
+function isBlockEntity(
+  maybeBlockEntity: BlockEntity | BlockUUIDTuple
+): maybeBlockEntity is BlockEntity {
+  return "id" in maybeBlockEntity;
+}
+
+export const BLOCK_PATH_ANCHOR_ID = "random-tools-block-path";
 
 function getParentBlocks(
   pageTree: BlockEntity[],
@@ -12,7 +20,11 @@ function getParentBlocks(
   } else if (pageTree.length > 0) {
     for (let b of pageTree) {
       const newParents = [...parents, b];
-      const candidates = getParentBlocks(b.children, currentBlock, newParents);
+      const candidates = getParentBlocks(
+        b.children.filter(isBlockEntity),
+        currentBlock,
+        newParents
+      );
       if (candidates) {
         return candidates;
       }
@@ -29,39 +41,52 @@ const getTitleText = (b: BlockEntity) => {
   return b.title.map(getFragmentText).join("");
 };
 
-export function useBlockPath() {
-  const [path, setPath] = React.useState<string[] | undefined>(undefined);
+export function useActiveBlocks() {
+  const [blocks, setBlocks] =
+    React.useState<BlockEntity[] | undefined>(undefined);
+  const isMounted = useMountedState();
+  const currentBlocksRef = React.useRef(blocks);
   React.useEffect(() => {
     const focusListener = async () => {
       const block = await logseq.Editor.getCurrentBlock();
       if (block) {
-        const pageBlocks = await logseq.Editor.getCurrentPageBlocksTree();
-        const parentBlocks = getParentBlocks(pageBlocks, block);
-        if (parentBlocks) {
-          const path = [...parentBlocks, block]?.map(getTitleText);
-          setPath(path);
+        const pageBlocks =
+          (await logseq.Editor.getCurrentPageBlocksTree()) ?? [];
+        if (isMounted()) {
+          const parentBlocks = getParentBlocks(pageBlocks, block);
+          if (parentBlocks) {
+            const _blocks = [...parentBlocks, block];
+            setBlocks(_blocks);
+            currentBlocksRef.current = _blocks;
+          }
         }
       }
     };
-    const blurListener = () => setPath(undefined);
+    const blurListener = () => {
+      let enterBlocks = currentBlocksRef.current;
+      setTimeout(() => {
+        if (enterBlocks === currentBlocksRef.current && isMounted()) {
+          setBlocks(undefined);
+        }
+      }, 100);
+    };
     top.document.addEventListener("focus", focusListener, true);
     top.document.addEventListener("blur", blurListener, true);
     return () => {
       top.document.removeEventListener("focus", focusListener, true);
       top.document.removeEventListener("blur", blurListener, true);
     };
-  }, []);
-  return path;
+  }, [isMounted]);
+  return blocks;
 }
 
-export function BlockPathRenderer() {
-  const path = useBlockPath();
-  const dPath = useDebounceValue(path);
+const useSyncBlockPath = (blocks?: BlockEntity[]) => {
   React.useEffect(() => {
-    const anchor = top.document.getElementById("random-tools-block-path");
+    const anchor = top.document.getElementById(BLOCK_PATH_ANCHOR_ID);
     if (anchor) {
-      if (dPath) {
-        anchor.innerHTML = dPath
+      const path = blocks?.map(getTitleText);
+      if (path) {
+        anchor.innerHTML = path
           .map((p: string) => `<strong>${p}</strong>`)
           .join(" ➤ ");
         anchor.style.display = "inline";
@@ -74,6 +99,11 @@ export function BlockPathRenderer() {
         anchor.style.display = "none";
       };
     }
-  }, [dPath]);
+  }, [blocks]);
+};
+
+export function BlockPathRenderer() {
+  const blocks = useActiveBlocks();
+  useSyncBlockPath(blocks);
   return null;
 }
