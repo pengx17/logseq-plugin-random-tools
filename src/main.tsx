@@ -38,12 +38,13 @@ function main() {
       position: absolute;
       top: calc(100% + 0.25em);
       left: 0.25em;
+      max-width: calc(100vw - 10px);
       padding: 0.25em 0.5em;
       font-size: 12px;
       color: var(--ct-page-font-color);
       border-radius: 2px;
       box-shadow: 0 0 1px;
-      visibility: hidden;
+      opacity: 0;
       display: flex;
       align-items: center;
     }
@@ -54,7 +55,7 @@ function main() {
 
     span#random-tools-block-path a.block-path-breadcrumb-fragment {
       color: var(--ls-link-ref-text-color);
-      display: inline-flex;
+      display: inline-block;
       white-space: nowrap;
       font-weight: 600;
       max-width: 400px;
@@ -64,7 +65,7 @@ function main() {
 
     span#random-tools-block-path .block-path-breadcrumb-fragment-separator {
       font-weight: 600;
-      margin: 0 0.5em;
+      margin: 0 0.25em;
     }
   `);
 
