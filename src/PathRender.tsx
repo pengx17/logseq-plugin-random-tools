@@ -1,7 +1,6 @@
 import {
   BlockEntity,
   BlockUUIDTuple,
-  // @ts-expect-error
   PageEntity,
 } from "@logseq/libs/dist/LSPlugin";
 import * as React from "react";
@@ -60,7 +59,9 @@ export function useActiveBlocks() {
     const focusListener = async () => {
       const block = await logseq.Editor.getCurrentBlock();
       if (block) {
-        const page = await logseq.Editor.getBlock(block.page.id);
+        const page = (await logseq.Editor.getBlock(
+          block.page.id
+        )) as PageEntity | null;
         if (page) {
           const pageBlocks =
             (await logseq.Editor.getPageBlocksTree(page.name)) ?? [];
