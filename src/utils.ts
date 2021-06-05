@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useMountedState, useDebounce } from "react-use";
 
 export const BLOCK_PATH_ANCHOR_ID = "random-tools-block-path";
+export const LEFT_CONTAINER_ID = "left-container";
+export const RIGHT_CONTAINER_ID = "right-sidebar-container";
 
 export const useAppOnVisibleChange = (fn: (visible: boolean) => void) => {
   const isMounted = useMountedState();
@@ -49,3 +51,29 @@ export function useDebounceValue<T>(v: T, timeout: number = 50) {
   );
   return state;
 }
+
+export const useActiveSide = () => {
+  const [side, setSide] = React.useState<"left" | "right">("left");
+  React.useEffect(() => {
+    const listener = (e: MouseEvent) => {
+      if (
+        top.document
+          .getElementById(RIGHT_CONTAINER_ID)
+          ?.contains(e.target as Node)
+      ) {
+        setSide("right");
+      } else if (
+        top.document
+          .getElementById(LEFT_CONTAINER_ID)
+          ?.contains(e.target as Node)
+      ) {
+        setSide("left");
+      }
+    };
+    top.document.addEventListener("mousedown", listener, true);
+    return () => {
+      top.document.removeEventListener("mousedown", listener, true);
+    };
+  }, []);
+  return side;
+};

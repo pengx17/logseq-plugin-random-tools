@@ -36,7 +36,8 @@ function main() {
 
     span#${BLOCK_PATH_ANCHOR_ID} {
       position: absolute;
-      top: calc(100% + 0.25em);
+      z-index: 200;
+      top: 40px;
       left: 0.25em;
       max-width: calc(100vw - 10px);
       padding: 0.25em 0.5em;
@@ -71,7 +72,7 @@ function main() {
 
   logseq.provideUI({
     key: "block-path",
-    path: "#head.cp__header",
+    path: "#app-container",
     template: `<span id="${BLOCK_PATH_ANCHOR_ID}" class="color-level"></span>`,
   });
 }
