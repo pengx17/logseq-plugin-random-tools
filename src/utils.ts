@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { BlockEntity, PageEntity } from "@logseq/libs/dist/LSPlugin";
+import React, { useRef, useState } from "react";
 import { useMountedState, useDebounce } from "react-use";
 
 export const BLOCK_PATH_ANCHOR_ID = "random-tools-block-path";
@@ -77,3 +78,89 @@ export const useActiveSide = () => {
   }, []);
   return side;
 };
+
+export async function getCurrentBlockAndPage(): Promise<
+  [PageEntity, BlockEntity] | null
+> {
+  const block = await logseq.Editor.getCurrentBlock();
+  if (block) {
+    const page = await logseq.Editor.getPage(block.page.id);
+    if (page) {
+      return [page, block];
+    }
+  }
+  return null;
+}
+
+export const useEditingPageAndBlock = (rootElement: Element | null) => {
+  const [state, setState] =
+    React.useState<[PageEntity, BlockEntity] | undefined>(undefined);
+  const isMounted = useMountedState();
+  const counterRef = useRef(0);
+  React.useEffect(() => {
+    const focusListener = async () => {
+      const counter = ++counterRef.current;
+      const results = await getCurrentBlockAndPage();
+      if (results && counter === counterRef.current) {
+        setState(results);
+      }
+    };
+
+    const blurListener = () => {
+      const counter = counterRef.current;
+      setTimeout(() => {
+        if (counter === counterRef.current) {
+          setState(undefined);
+        }
+      }, 200);
+    };
+    rootElement?.addEventListener("focus", focusListener, true);
+    rootElement?.addEventListener("blur", blurListener, true);
+    return () => {
+      rootElement?.removeEventListener("focus", focusListener, true);
+      rootElement?.removeEventListener("blur", blurListener, true);
+    };
+  }, [isMounted, rootElement]);
+  return state;
+};
+
+export const useEditingPageTree = (
+  rootElement: Element | null,
+  debounceTime = 100
+) => {
+  const [tree, setTree] = React.useState<BlockEntity[] | undefined>(undefined);
+  const isMounted = useMountedState();
+  const pageAndBlock = useEditingPageAndBlock(rootElement);
+  const counterRef = useRef(0);
+  React.useEffect(() => {
+    if (pageAndBlock) {
+      const [page] = pageAndBlock;
+      let timer = 0;
+      const calcAndUpdate = (initial = false) => {
+        const counter = ++counterRef.current;
+        if (timer) {
+          clearTimeout(timer);
+        }
+        timer = setTimeout(
+          async () => {
+            const res = await logseq.Editor.getPageBlocksTree(page.name);
+            if (res && counterRef.current === counter) {
+              setTree(res);
+            }
+          },
+          initial ? 0 : debounceTime
+        );
+      };
+      calcAndUpdate(true);
+      const focusListener = () => {
+        calcAndUpdate();
+      };
+      rootElement?.addEventListener("input", focusListener, true);
+      return () => {
+        rootElement?.removeEventListener("input", focusListener, true);
+      };
+    }
+  }, [isMounted, rootElement, pageAndBlock]);
+  return tree;
+};
+

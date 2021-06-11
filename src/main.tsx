@@ -1,5 +1,6 @@
 import "@logseq/libs";
 import "virtual:windi.css";
+import "virtual:windi-devtools";
 
 import React from "react";
 import ReactDOM from "react-dom";
@@ -28,6 +29,9 @@ function main() {
   logseq.setMainUIInlineStyle({
     zIndex: 11,
   });
+
+  // @ts-expect-error
+  top['pluginId-loaded'] = true;
 
   logseq.provideStyle(css`
     .image-resize img {
@@ -78,3 +82,8 @@ function main() {
 }
 
 logseq.ready(createModel()).then(main).catch(console.error);
+
+// @ts-expect-error
+if (top['pluginId-loaded']) {
+  top.location.reload();
+}

@@ -5,7 +5,11 @@ import {
 } from "@logseq/libs/dist/LSPlugin";
 import * as React from "react";
 import { useMountedState } from "react-use";
-import { BLOCK_PATH_ANCHOR_ID, LEFT_CONTAINER_ID } from "./utils";
+import {
+  BLOCK_PATH_ANCHOR_ID,
+  getCurrentBlockAndPage,
+  LEFT_CONTAINER_ID,
+} from "./utils";
 
 function isBlockEntity(
   maybeBlockEntity: BlockEntity | BlockUUIDTuple | PageEntity
@@ -15,6 +19,7 @@ function isBlockEntity(
 }
 
 async function getBlockAncestors(
+  page: PageEntity,
   block: BlockEntity
 ): Promise<[PageEntity, ...BlockEntity[]] | null> {
   function run(
@@ -39,25 +44,22 @@ async function getBlockAncestors(
     }
     return null;
   }
-  const page = await logseq.Editor.getPage(block.page.id);
-  if (page) {
-    const rootPageTree = await logseq.Editor.getPageBlocksTree(page.name);
-    if (rootPageTree) {
-      const parentBlocks = run(rootPageTree, block);
-      if (parentBlocks) {
-        return [page, ...parentBlocks];
-      }
+  const rootPageTree = await logseq.Editor.getPageBlocksTree(page.name);
+  if (rootPageTree) {
+    const parentBlocks = run(rootPageTree, block);
+    if (parentBlocks) {
+      return [page, ...parentBlocks];
     }
   }
   return null;
 }
 
 async function getCurrentBlockAndAncestors() {
-  const block = await logseq.Editor.getCurrentBlock();
-  if (block) {
-    const parents = await getBlockAncestors(block);
+  const res = await getCurrentBlockAndPage();
+  if (res) {
+    const parents = await getBlockAncestors(...res);
     if (parents) {
-      return [...parents, block] as const;
+      return [...parents, res[1]] as const;
     }
   }
   return null;
