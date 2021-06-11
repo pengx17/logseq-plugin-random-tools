@@ -10,7 +10,7 @@ function App() {
     <>
       <FullscreenImage />
       {/* <BlockPathRenderer /> */}
-      {/* <WordCount /> */}
+      <WordCount />
     </>
   );
 }

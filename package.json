@@ -4,7 +4,7 @@
   "main": "dist/index.html",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build"
+    "build": "vite build"
   },
   "license": "MIT",
   "dependencies": {
@@ -15,7 +15,8 @@
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
     "react-use": "^17.2.4",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "words-count": "^2.0.1"
   },
   "devDependencies": {
     "@types/react": "^17.0.11",

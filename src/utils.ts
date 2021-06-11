@@ -3,6 +3,7 @@ import React, { useRef, useState } from "react";
 import { useMountedState, useDebounce } from "react-use";
 
 export const BLOCK_PATH_ANCHOR_ID = "random-tools-block-path";
+export const WORD_COUNT_ANCHOR_ID = "random-tools-word-count";
 export const LEFT_CONTAINER_ID = "left-container";
 export const RIGHT_CONTAINER_ID = "right-sidebar-container";
 
@@ -126,12 +127,21 @@ export const useEditingPageAndBlock = (rootElement: Element | null) => {
 
 export const useEditingPageTree = (
   rootElement: Element | null,
-  debounceTime = 100
+  debounceTime = 1000
 ) => {
   const [tree, setTree] = React.useState<BlockEntity[] | undefined>(undefined);
   const isMounted = useMountedState();
   const pageAndBlock = useEditingPageAndBlock(rootElement);
   const counterRef = useRef(0);
+  React.useEffect(() => {
+    // TODO: cannot remove listener in HMR mode
+    logseq.App.onRouteChanged(() => {
+      ++counterRef.current;
+      if (isMounted()) {
+        setTree([]);
+      }
+    });
+  }, []);
   React.useEffect(() => {
     if (pageAndBlock) {
       const [page] = pageAndBlock;
@@ -156,11 +166,12 @@ export const useEditingPageTree = (
         calcAndUpdate();
       };
       rootElement?.addEventListener("input", focusListener, true);
+      rootElement?.addEventListener("blur", focusListener, true);
       return () => {
         rootElement?.removeEventListener("input", focusListener, true);
+        rootElement?.removeEventListener("blur", focusListener, true);
       };
     }
   }, [isMounted, rootElement, pageAndBlock]);
   return tree;
 };
-
