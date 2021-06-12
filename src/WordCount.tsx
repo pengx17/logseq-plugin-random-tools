@@ -61,16 +61,16 @@ const unnestListFragment = (item: ListFragment): string[] => {
   ];
 };
 
-const flatBlock = (block: BlockEntity): string[] => {
+const flatBlockTexts = (block: BlockEntity): string[] => {
   return [
     ...[...(block.title ?? []), ...(block.body ?? [])].flatMap(flatFragments),
-    ...(block.children ?? []).filter(isBlockEntity).flatMap(flatBlock),
+    ...(block.children ?? []).filter(isBlockEntity).flatMap(flatBlockTexts),
   ];
 };
 
 const useEditingPageContent = () => {
   const tree = useEditingPageTree(top.document.body);
-  return useMemo(() => [tree, tree?.flatMap(flatBlock)], [tree]);
+  return useMemo(() => [tree, tree?.flatMap(flatBlockTexts)], [tree]);
 };
 
 export const WordCount = () => {
