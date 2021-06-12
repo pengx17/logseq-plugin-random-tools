@@ -15,6 +15,9 @@ function isBlockEntity(
   return "page" in maybeBlockEntity;
 }
 
+const urlPattern =
+  /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/g;
+
 type ListFragment = { content: Fragment[]; items: ListFragment[] };
 
 type Fragment =
@@ -80,7 +83,11 @@ const useEditingPageWordCount = () => {
     // words-count does not perform as good result as MS Word. E.g.,
     // "G6" will will be counted as 2
     // also there is no option to take punctuations into the counted numbers
-    return wordsCount(texts?.join(" "), { punctuation: ["·"] }) as number;
+    const paragraph = texts?.join(" ").replaceAll(urlPattern, "url");
+    console.log(paragraph);
+    return wordsCount(paragraph, {
+      punctuation: ["·"],
+    }) as number;
   }, [texts]);
 };
 
