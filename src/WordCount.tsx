@@ -17,21 +17,21 @@ function isBlockEntity(
 
 type Fragment =
   | ["Plain", string]
-  | ["Link", { url: [string, any]; fullText: string }]
+  | ["Link", { url: [string, any]; label: [Fragment]; fullText: string }]
   | ["Macro", any]
   | ["Code", any];
 
+// This is purely coded from my observation. May need to refer to mldoc later.
 const flatFragments = (pair: Fragment): string[] => {
   if (!["Plain", "Link", "Code"].includes(pair[0])) {
     return [];
   } else if (typeof pair[1] === "string") {
     return [pair[1]];
   } else if (pair[0] === "Link") {
-    if (pair[1].url[0] === "Search") {
-      return [pair[1].url[1]];
-    } else {
-      return ["link"];
+    if (pair[1].url[0] === "File") {
+      return [];
     }
+    return flatFragments(pair[1].label[0]);
   }
   return [];
 };
@@ -51,17 +51,20 @@ const useEditingPageContent = () => {
 export const WordCount = () => {
   const [_, texts] = useEditingPageContent();
   React.useEffect(() => {
-    const count = wordsCount(texts?.join(" "));
+    // words-count does not perform as good result as MS Word. E.g.,
+    // "G6" will will be counted as 2
+    // also there is no option to take punctuations into the counted numbers 
+    const count = wordsCount(texts?.join(" "), { punctuation: ["·"] });
     const anchor = top.document.getElementById(WORD_COUNT_ANCHOR_ID);
     if (anchor) {
       if (count) {
         anchor.innerHTML = `Words: ${count}`;
-        anchor.style.opacity = '1';
+        anchor.style.opacity = "1";
       } else {
         anchor.innerHTML = ``;
-        anchor.style.opacity = '0';
+        anchor.style.opacity = "0";
       }
-    } 
+    }
   }, [texts]);
   return null;
 };

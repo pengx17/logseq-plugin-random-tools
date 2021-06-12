@@ -125,6 +125,8 @@ export const useEditingPageAndBlock = (rootElement: Element | null) => {
   return state;
 };
 
+const changeEvents = ['change', 'blur', 'input'];
+
 export const useEditingPageTree = (
   rootElement: Element | null,
   debounceTime = 1000
@@ -134,7 +136,6 @@ export const useEditingPageTree = (
   const pageAndBlock = useEditingPageAndBlock(rootElement);
   const counterRef = useRef(0);
   React.useEffect(() => {
-    // TODO: cannot remove listener in HMR mode
     logseq.App.onRouteChanged(() => {
       ++counterRef.current;
       if (isMounted()) {
@@ -165,11 +166,14 @@ export const useEditingPageTree = (
       const focusListener = () => {
         calcAndUpdate();
       };
-      rootElement?.addEventListener("input", focusListener, true);
-      rootElement?.addEventListener("blur", focusListener, true);
+
+      changeEvents.forEach(eventName => {
+        rootElement?.addEventListener(eventName, focusListener, true);
+      })
       return () => {
-        rootElement?.removeEventListener("input", focusListener, true);
-        rootElement?.removeEventListener("blur", focusListener, true);
+        changeEvents.forEach(eventName => {
+          rootElement?.removeEventListener(eventName, focusListener, true);
+        })
       };
     }
   }, [isMounted, rootElement, pageAndBlock]);
