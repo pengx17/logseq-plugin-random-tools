@@ -33,8 +33,8 @@ const flatFragments = (pair: Fragment): string[] => {
   if (pair[0] === "List") {
     return pair[1].flatMap(unnestListFragment);
   }
-  if (pair[0].includes('reference')) {
-    return ['reference'];
+  if (pair[0].includes("reference")) {
+    return ["reference"];
   }
   if (!["Plain", "Link", "Code"].includes(pair[0])) {
     return [];
@@ -73,13 +73,20 @@ const useEditingPageContent = () => {
   return useMemo(() => [tree, tree?.flatMap(flatBlockTexts)], [tree]);
 };
 
-export const WordCount = () => {
+const useEditingPageWordCount = () => {
+  // Not using raw text because logseq has some special tokens, like block reference, timestamps, properties etc.
   const [_, texts] = useEditingPageContent();
-  React.useEffect(() => {
+  return React.useMemo(() => {
     // words-count does not perform as good result as MS Word. E.g.,
     // "G6" will will be counted as 2
     // also there is no option to take punctuations into the counted numbers
-    const count = wordsCount(texts?.join(" "), { punctuation: ["·"] });
+    return wordsCount(texts?.join(" "), { punctuation: ["·"] }) as number;
+  }, [texts]);
+};
+
+export const WordCount = () => {
+  const count = useEditingPageWordCount();
+  React.useEffect(() => {
     const anchor = top.document.getElementById(WORD_COUNT_ANCHOR_ID);
     if (anchor) {
       if (count) {
@@ -90,6 +97,6 @@ export const WordCount = () => {
         anchor.style.opacity = "0";
       }
     }
-  }, [texts]);
+  }, [count]);
   return null;
 };
