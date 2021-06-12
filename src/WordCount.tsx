@@ -33,6 +33,9 @@ const flatFragments = (pair: Fragment): string[] => {
   if (pair[0] === "List") {
     return pair[1].flatMap(unnestListFragment);
   }
+  if (pair[0].includes('reference')) {
+    return ['reference'];
+  }
   if (!["Plain", "Link", "Code"].includes(pair[0])) {
     return [];
   } else if (typeof pair[1] === "string") {
