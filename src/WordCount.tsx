@@ -15,14 +15,24 @@ function isBlockEntity(
   return "page" in maybeBlockEntity;
 }
 
+type ListFragment = { content: Fragment[]; items: ListFragment[] };
+
 type Fragment =
   | ["Plain", string]
   | ["Link", { url: [string, any]; label: [Fragment]; fullText: string }]
   | ["Macro", any]
-  | ["Code", any];
+  | ["Code", any]
+  | ["Paragraph", Fragment[]]
+  | ["List", ListFragment[]];
 
 // This is purely coded from my observation. May need to refer to mldoc later.
 const flatFragments = (pair: Fragment): string[] => {
+  if (pair[0] === "Paragraph") {
+    return pair[1].flatMap(flatFragments);
+  }
+  if (pair[0] === "List") {
+    return pair[1].flatMap(unnestListFragment);
+  }
   if (!["Plain", "Link", "Code"].includes(pair[0])) {
     return [];
   } else if (typeof pair[1] === "string") {
@@ -30,10 +40,22 @@ const flatFragments = (pair: Fragment): string[] => {
   } else if (pair[0] === "Link") {
     if (pair[1].url[0] === "File") {
       return [];
+    } else if (pair[1].label[0][1]) {
+      return flatFragments(pair[1].label[0]);
     }
-    return flatFragments(pair[1].label[0]);
+    if (pair[1].url[0] === "Search") {
+      return [pair[1].url[1]];
+    }
+    return [pair[1].fullText];
   }
   return [];
+};
+
+const unnestListFragment = (item: ListFragment): string[] => {
+  return [
+    ...item.content.flatMap(flatFragments),
+    ...item.items.flatMap(unnestListFragment),
+  ];
 };
 
 const flatBlock = (block: BlockEntity): string[] => {
@@ -53,7 +75,7 @@ export const WordCount = () => {
   React.useEffect(() => {
     // words-count does not perform as good result as MS Word. E.g.,
     // "G6" will will be counted as 2
-    // also there is no option to take punctuations into the counted numbers 
+    // also there is no option to take punctuations into the counted numbers
     const count = wordsCount(texts?.join(" "), { punctuation: ["·"] });
     const anchor = top.document.getElementById(WORD_COUNT_ANCHOR_ID);
     if (anchor) {
