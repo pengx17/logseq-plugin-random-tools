@@ -84,7 +84,6 @@ const useEditingPageWordCount = () => {
     // "G6" will will be counted as 2
     // also there is no option to take punctuations into the counted numbers
     const paragraph = texts?.join(" ").replaceAll(urlPattern, "url");
-    console.log(paragraph);
     return wordsCount(paragraph, {
       punctuation: ["·"],
     }) as number;
