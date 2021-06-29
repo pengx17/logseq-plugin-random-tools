@@ -6,6 +6,3 @@ Some random tools for fun.
 ![](./fullscreen.gif)
 ### Word counter
 ![](./word-counter.gif)
-
-### Show current block path
-![](./block-path.gif)
