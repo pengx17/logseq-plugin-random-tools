@@ -4,7 +4,6 @@ import {
   PageEntity,
 } from "@logseq/libs/dist/LSPlugin";
 import React, { useMemo } from "react";
-// @ts-expect-error no types
 import wordsCount from "words-count";
 import { useEditingPageTree, WORD_COUNT_ANCHOR_ID } from "./utils";
 
@@ -46,7 +45,7 @@ const flatFragments = (pair: Fragment): string[] => {
   } else if (pair[0] === "Link") {
     if (pair[1].url[0] === "File") {
       return [];
-    } else if (pair[1].label[0][1]) {
+    } else if (pair[1].label?.[0]?.[1]) {
       return flatFragments(pair[1].label[0]);
     }
     if (pair[1].url[0] === "Search") {
@@ -84,24 +83,20 @@ const useEditingPageWordCount = () => {
     // "G6" will will be counted as 2
     // also there is no option to take punctuations into the counted numbers
     const paragraph = texts?.join(" ").replaceAll(urlPattern, "url");
-    return wordsCount(paragraph, {
+    return wordsCount(paragraph ?? '', {
       punctuation: ["·"],
-    }) as number;
+      disableDefaultPunctuation: false,
+      punctuationAsBreaker: false
+    });
   }, [texts]);
 };
 
 export const WordCount = () => {
   const count = useEditingPageWordCount();
   React.useEffect(() => {
-    const anchor = top.document.getElementById(WORD_COUNT_ANCHOR_ID);
+    const anchor = top.document.querySelector(`#${WORD_COUNT_ANCHOR_ID} > span`);
     if (anchor) {
-      if (count) {
-        anchor.innerHTML = `Words: ${count}`;
-        anchor.style.opacity = "1";
-      } else {
-        anchor.innerHTML = ``;
-        anchor.style.opacity = "0";
-      }
+      anchor.innerHTML = `${count ?? '-'}`;
     }
   }, [count]);
   return null;
