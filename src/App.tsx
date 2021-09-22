@@ -8,7 +8,7 @@ function App() {
   useKey("Escape", () => logseq.hideMainUI(), { options: true });
   return (
     <>
-      <FullscreenImage />
+      {/* <FullscreenImage /> */}
       {/* <BlockPathRenderer /> */}
       <WordCount />
     </>
