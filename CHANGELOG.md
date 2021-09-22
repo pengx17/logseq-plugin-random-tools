@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/pengx17/logseq-plugin-random-tools/compare/v1.0.0...v1.1.0) (2021-09-22)
+
+
+### Features
+
+* remove click image to toggle fullscreen ([d9973d6](https://github.com/pengx17/logseq-plugin-random-tools/commit/d9973d681a2568d4ba8038a0f534cfd58337c772))
+
 # 1.0.0 (2021-07-19)
 
 
